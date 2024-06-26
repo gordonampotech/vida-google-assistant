@@ -26,8 +26,6 @@ def save_configuration():
         if not os.path.exists(config_file_path):
             return f"{config_file_path} does not exist"
         
-        return f"Configuration added and file saved as {json_file_save_path}"
-
         # Read the current configuration.yaml
         with open(config_file_path, 'r') as config_file:
             config_content = config_file.read()
