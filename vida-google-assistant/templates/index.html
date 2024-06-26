@@ -7,49 +7,167 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #4caf50;
+        }
+
         form {
             margin-bottom: 20px;
         }
-        input[type="text"], input[type="file"] {
-            display: block;
-            margin-bottom: 10px;
-        }
-        button {
+
+        input[type="text"] {
+            width: calc(100% - 20px);
             padding: 10px;
-            font-size: 16px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            z-index: 1;
+            position: relative;
         }
+
+        .file-upload-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            margin: 10px 0;
+            position: relative;
+            z-index: 0;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-upload-button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 5px; /* Space between button and file text */
+            position: relative;
+            z-index: 1;
+        }
+
+        .file-upload-text {
+            color: #333;
+            width: 100%;
+            text-align: right;
+            padding-right: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            z-index: 1;
+            position: relative;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+        }
+
         .loading-animation {
             border: 4px solid #f3f3f3;
             border-radius: 50%;
             border-top: 4px solid #3498db;
-            width: 16px;
-            height: 16px;
+            width: 24px;
+            height: 24px;
+            margin: auto;
             animation: spin 2s linear infinite;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        #result {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #result p {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #result p.success {
+            background-color: #e0f7ea;
+            color: #2e7d32;
+        }
+
+        #result p.error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
     </style>
 </head>
 <body>
-    <h1>Upload JSON with Project ID</h1>
-    <form id="uploadForm">
-        <label for="project_id">Project ID:</label>
-        <input type="text" id="project_id" name="project_id" required>
+    <div class="container">
+        <h1>Upload JSON with Project ID</h1>
+        <form id="uploadForm">
+            <label for="project_id">Project ID:</label>
+            <input type="text" id="project_id" name="project_id" required>
 
-        <label for="jsonFile">JSON File:</label>
-        <input type="file" id="jsonFile" name="json_file" accept=".json" required>
+            <label for="jsonFile">JSON File:</label>
+            <div class="file-upload-wrapper">
+                <button class="file-upload-button" type="button">Choose file</button>
+                <span class="file-upload-text">No file chosen</span>
+                <input type="file" id="jsonFile" name="json_file" accept=".json" required>
+            </div>
 
-        <button type="submit">Submit</button>
-    </form>
+            <button type="submit">Submit</button>
+        </form>
 
-    <div id="result"></div>
+        <div id="result"></div>
+    </div>
 
     <script>
+      document.getElementById('jsonFile').addEventListener('change', function(event) {
+        const fileName = event.target.files[0] ? event.target.files[0].name : 'No file chosen';
+        document.querySelector('.file-upload-text').textContent = fileName;
+      });
+
       async function storeInConfiguration(event, project_id, json_file) {
         // Display loading animation on the button
         const button = event.target;
@@ -72,11 +190,12 @@
         button.innerHTML = originalText;
         button.disabled = false;
 
+        const resultDiv = document.getElementById('result');
         if (res.ok) {
           const resultText = await res.text();
-          document.getElementById('result').innerHTML = `<p>File uploaded successfully!</p><p>Server Response: ${resultText}</p>`;
+          resultDiv.innerHTML = `<p class="success">File uploaded successfully!</p><p>Server Response: ${resultText}</p>`;
         } else {
-          document.getElementById('result').innerHTML = `<p>Failed to upload file.</p>`;
+          resultDiv.innerHTML = `<p class="error">Failed to upload file.</p>`;
         }
       }
 
@@ -106,6 +225,8 @@
 
         await storeInConfiguration(event, project_id, file);
       }
+
+      document.getElementById('uploadForm').addEventListener('submit', submit);
     </script>
 </body>
 </html>

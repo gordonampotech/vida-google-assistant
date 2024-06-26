@@ -19,9 +19,18 @@ COPY app.py /app.py
 # Copy the templates directory
 COPY templates /templates
 
+# Copy the run script
+COPY run.sh /run.sh
+
 # Since you mentioned nginx configuration, adjust the path according to where nginx expects it in Alpine
 # Adjust the nginx configuration path as per Alpine's nginx package structure
 COPY ingress.conf /etc/nginx/conf.d/default.conf
 
 # Set up a directory for the Nginx run files (might not be necessary in Alpine as the nginx package takes care of this)
 RUN mkdir -p /run/nginx
+
+# Make the run script, backup script, and start script executable
+RUN chmod a+x /run.sh
+
+# Use start.sh as the default command
+CMD ["/run.sh"]

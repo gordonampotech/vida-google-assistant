@@ -16,4 +16,5 @@ arch:
   - i386
 image: "ghcr.io/gordonampotech/vida-google-assistant"
 ingress: true
+ingress_port: 8100
 host_network: true
