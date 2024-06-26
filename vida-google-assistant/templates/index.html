@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vida Google Assistant Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="file"] {
+            display: block;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .loading-animation {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 16px;
+            height: 16px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload JSON with Project ID</h1>
+    <form id="uploadForm">
+        <label for="project_id">Project ID:</label>
+        <input type="text" id="project_id" name="project_id" required>
+
+        <label for="jsonFile">JSON File:</label>
+        <input type="file" id="jsonFile" name="json_file" accept=".json" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+      async function storeInConfiguration(event, project_id, json_file) {
+        // Display loading animation on the button
+        const button = event.target;
+        const originalText = button.innerHTML;
+
+        button.innerHTML = '<div class="loading-animation"></div>';
+        button.disabled = true;
+
+        // Create form data to send to the server
+        const formData = new FormData();
+        formData.append('project_id', project_id);
+        formData.append('json_file', json_file);
+
+        // Send POST request to the server endpoint
+        const res = await fetch('/save_configuration', {
+          method: 'POST',
+          body: formData
+        });
+
+        button.innerHTML = originalText;
+        button.disabled = false;
+
+        if (res.ok) {
+          const resultText = await res.text();
+          document.getElementById('result').innerHTML = `<p>File uploaded successfully!</p><p>Server Response: ${resultText}</p>`;
+        } else {
+          document.getElementById('result').innerHTML = `<p>Failed to upload file.</p>`;
+        }
+      }
+
+      async function submit(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const project_id = document.getElementById('project_id').value;
+        const fileInput = document.getElementById('jsonFile');
+        const file = fileInput.files[0];
+
+        if (!project_id || !file) {
+          alert('Please enter a project ID and select a JSON file.');
+          return;
+        }
+
+        // Display the project ID and file content
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const fileContent = e.target.result;
+          document.getElementById('result').innerHTML = `
+              <p><strong>Project ID:</strong> ${project_id}</p>
+              <p><strong>File Content:</strong></p>
+              <pre>${fileContent}</pre>
+          `;
+        };
+        reader.readAsText(file);
+
+        await storeInConfiguration(event, project_id, file);
+      }
+    </script>
+</body>
+</html>
