@@ -182,10 +182,11 @@
         formData.append('json_file', json_file);
 
         // Send POST request to the server endpoint
-        const res = await fetch('/save_configuration', {
+        const res = await fetch('save_configuration', {
           method: 'POST',
           body: formData
         });
+        console.log(res.json());
 
         button.innerHTML = originalText;
         button.disabled = false;

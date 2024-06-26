@@ -15,16 +15,18 @@ def save_configuration():
     json_file = request.files['json_file']
 
     if not project_id or not json_file:
-        return "Project ID and JSON file are required", 400
+        return "Project ID and JSON file are required"
 
     try:
         # Define paths
-        config_file_path = '/usr/share/hassio/homeassistant/configuration.yaml'
-        json_file_save_path = f'/usr/share/hassio/homeassistant/{json_file.filename}'
+        config_file_path = '/share/hassio/homeassistant/configuration.yaml'
+        json_file_save_path = f'/share/hassio/homeassistant/SERVICE_ACCOUNT.JSON'
 
         # Check if configuration.yaml exists
         if not os.path.exists(config_file_path):
-            return f"{config_file_path} does not exist", 500
+            return f"{config_file_path} does not exist"
+        
+        return f"Configuration added and file saved as {json_file_save_path}"
 
         # Read the current configuration.yaml
         with open(config_file_path, 'r') as config_file:
